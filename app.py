@@ -8,7 +8,7 @@ from bson.objectid import ObjectId
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'dev-secret-key-123')
-app.config['MONGO_URI'] = os.environ.get('MONGO_URI', 'mongodb://localhost:27017/spam_detector')
+app.config['MONGO_URI'] = os.environ.get('MONGO_URI', 'mongodb+srv://obul12:Obul123@cluster0.p1mlwmz.mongodb.net/Spammails?retryWrites=true&w=majority&appName=Cluster0')
 mongo = PyMongo(app)
 
 try:
