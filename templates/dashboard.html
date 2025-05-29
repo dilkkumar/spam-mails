@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">Welcome, {{ user.email }}</h2>
+    
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">Spam Statistics</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="statsChart" width="400" height="400"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h5 class="card-title mb-0">Email Analysis</h5>
+                </div>
+                <div class="card-body">
+                    <textarea id="emailContent" class="form-control mb-3" 
+                              rows="8" placeholder="Paste email content here..."></textarea>
+                    <button id="checkSpamBtn" class="btn btn-primary w-100">
+                        Check for Spam
+                    </button>
+                    <div id="result" class="mt-4 p-3 rounded text-center"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('statsChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Spam', 'Not Spam'],
+                datasets: [{
+                    data: [{{ spam_count }}, {{ total - spam_count }}],
+                    backgroundColor: ['#dc3545', '#28a745'],
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom' }
+                }
+            }
+        });
+
+        document.getElementById('checkSpamBtn').addEventListener('click', checkSpam);
+    });
+
+    async function checkSpam() {
+        const content = document.getElementById('emailContent').value.trim();
+        const resultDiv = document.getElementById('result');
+        
+        if (!content) {
+            resultDiv.className = 'alert alert-danger mt-3';
+            resultDiv.innerHTML = 'Please enter email content to analyze!';
+            return;
+        }
+
+        try {
+            const response = await fetch('/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `email_content=${encodeURIComponent(content)}`
+            });
+            
+            const data = await response.json();
+            
+            resultDiv.className = data.is_spam ? 'alert alert-danger' : 'alert alert-success';
+            resultDiv.innerHTML = `
+                <h4 class="alert-heading">${data.is_spam ? 'SPAM DETECTED!' : 'SAFE EMAIL'}</h4>
+                <hr>
+                <p class="mb-0">Confidence: ${data.probability}%</p>
+            `;
+
+            setTimeout(() => location.reload(), 2000);
+            
+        } catch (error) {
+            resultDiv.className = 'alert alert-warning';
+            resultDiv.innerHTML = 'Error analyzing email. Please try again.';
+        }
+    }
+</script>
+{% endblock %}

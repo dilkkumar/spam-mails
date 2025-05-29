@@ -1,0 +1,14 @@
+{
+  "manifest_version": 3,
+  "name": "Mobixtream Extension",
+  "version": "1.0",
+  "description": "Connects to Mobixtream Flask API",
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "permissions": ["scripting", "activeTab"],
+  "host_permissions": [
+    "http://13.233.121.132:5000/*"
+  ]
+}

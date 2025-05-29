@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">History</h5>
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Content</th>
+                        <th>Date</th>
+                        <th>Result</th>
+                        <th>Confidence</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for check in checks %}
+                    <tr id="check-{{ check._id }}">
+                        <td>{{ check.content }}</td>
+                        <td>
+                            {% if check.timestamp %}
+                                {{ check.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge {{ 'bg-danger' if check.is_spam else 'bg-success' }}">
+                                {{ 'Spam' if check.is_spam else 'Safe' }}
+                            </span>
+                        </td>
+                        <td>{{ check.probability }}%</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" 
+                                    onclick="deleteCheck('{{ check._id }}')">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script>
+function deleteCheck(checkId) {
+    if (confirm('Are you sure you want to delete this check?')) {
+        fetch(`/delete_check/${checkId}`, {
+            method: 'DELETE',
+        })
+        .then(response => {
+            if (response.ok) {
+                document.getElementById(`check-${checkId}`).remove()
+            } else {
+                alert('Failed to delete check')
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error)
+            alert('Error deleting check')
+        })
+    }
+}
+</script>
+{% endblock %}
