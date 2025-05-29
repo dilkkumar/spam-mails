@@ -1,6 +1,0 @@
-Flask
-Flask-PyMongo
-pandas
-scikit-learn
-joblib
-Werkzeug
